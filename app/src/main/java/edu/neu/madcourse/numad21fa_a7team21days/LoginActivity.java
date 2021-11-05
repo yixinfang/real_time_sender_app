@@ -81,9 +81,9 @@ public class LoginActivity extends AppCompatActivity {
         mDatabase.child("users").child(userGivenName).setValue(user);
     }
 
-    public void startSendSticker(View view, String useGivenName){
+    public void startSendSticker(View view, String userGivenName){
         Intent intent = new Intent(this, SendStickerActivity.class);
-        intent.putExtra("userName", useGivenName);
+        intent.putExtra("userName", userGivenName);
         startActivity(intent);
     }
 }

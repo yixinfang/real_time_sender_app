@@ -1,19 +1,20 @@
 package edu.neu.madcourse.numad21fa_a7team21days;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class Sticker {
-    private String stickerId;
+    private Integer stickerId;
     private String sender;
-    private LocalDateTime sendTime;
+    private String sendTime;
 
-    public Sticker(String stickerId, String sender, LocalDateTime sendTime) {
+    public Sticker(Integer stickerId, String sender, String sendTime) {
         this.stickerId = stickerId;
         this.sender = sender;
         this.sendTime = sendTime;
     }
 
-    public String getStickerId() {
+    public Integer getStickerId() {
         return stickerId;
     }
 
@@ -21,7 +22,7 @@ public class Sticker {
         return sender;
     }
 
-    public LocalDateTime getSendTime() {
+    public String getSendTime() {
         return sendTime;
     }
 }
