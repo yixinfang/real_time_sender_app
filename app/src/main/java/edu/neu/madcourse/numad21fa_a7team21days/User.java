@@ -10,7 +10,7 @@ public class User {
     public User(String userName) {
         this.userName = userName;
         this.numberOfSend = 0;
-        this.receivedSticker = new ArrayList<String>();
+        this.receivedSticker = new ArrayList<Sticker>();
         this.receivedSticker.add("init");
     }
 
