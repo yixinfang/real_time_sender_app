@@ -15,11 +15,15 @@ public class User {
         this.userName = userName;
         this.numberOfSend = 0;
         this.receivedSticker = new ArrayList<Sticker>();
-//        Date date = Calendar.getInstance().getTime();
-//        DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
-//        String strDate = dateFormat.format(date);
-//        this.receivedSticker.add(new Sticker(1,userName,strDate));
+
+        // testing for later usage
+        Date date = Calendar.getInstance().getTime();
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+        String strDate = dateFormat.format(date);
+        this.receivedSticker.add(new Sticker(1,userName,strDate));
     }
+
+    public User(){ }
 
     public String getUserName() {
         return userName;
@@ -31,5 +35,18 @@ public class User {
 
     public ArrayList<Sticker> getReceivedSticker() {
         return receivedSticker;
+    }
+
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public void setNumberOfSend(Integer numberOfSend) {
+        this.numberOfSend = numberOfSend;
+    }
+
+    public void setReceivedSticker(ArrayList<Sticker> receivedSticker) {
+        this.receivedSticker = receivedSticker;
     }
 }

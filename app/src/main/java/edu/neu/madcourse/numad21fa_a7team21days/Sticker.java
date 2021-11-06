@@ -14,6 +14,8 @@ public class Sticker {
         this.sendTime = sendTime;
     }
 
+    public Sticker(){ }
+
     public Integer getStickerId() {
         return stickerId;
     }
