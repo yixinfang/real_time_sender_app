@@ -26,6 +26,8 @@ import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SendStickerActivity extends AppCompatActivity {
 
@@ -38,15 +40,20 @@ public class SendStickerActivity extends AppCompatActivity {
 
     private TextView curUserTextView;
     private TextView selectedImgTextView;
-    private DatabaseReference mDatabase;
     private DatabaseReference mUser;
+    private DatabaseReference mDatabase;
     private String FIREBASE_MESSAGE_TOKEN;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_send_sticker);
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase = tools.mDatabase;
         mUser = mDatabase.child("users");
+        Map<String, User> users = new HashMap<>();
+        users.put("yixin", new User("Yixin"));
+        users.put("haowen", new User("Haowen"));
+
+        mUser.setValue(users);
 
         // login user
         curUser = (String) getIntent().getSerializableExtra("userName");
@@ -73,7 +80,7 @@ public class SendStickerActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 // get the selected user
                 selectedUser = parentView.getItemAtPosition(position).toString();
-                Log.e("selectedUser", selectedUser);
+                Log.i("selectedUser", selectedUser);
             }
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
@@ -94,7 +101,7 @@ public class SendStickerActivity extends AppCompatActivity {
                         // Get new FCM registration token
                         String FIREBASE_MESSAGE_TOKEN = task.getResult();
                         // Log and toast
-                        Log.e("FIREBASE_MESSAGE_TOKEN", FIREBASE_MESSAGE_TOKEN);
+                        Log.i("FIREBASE_MESSAGE_TOKEN", FIREBASE_MESSAGE_TOKEN);
                     }
                 });
     }
@@ -106,15 +113,15 @@ public class SendStickerActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 usersOption.clear();
-                Log.e("User Count " ,""+snapshot.getChildrenCount());
+                Log.i("User Count " ,""+snapshot.getChildrenCount());
                 for (DataSnapshot postSnapshot: snapshot.getChildren()) {
                     User user = postSnapshot.getValue(User.class);
-                    Log.e("Get Data", user.getUserName());
+                    Log.i("Get Data", user.getUserName());
                     if(!user.getUserName().equals(curUser)) {
                         usersOption.add(user.getUserName());
                     }
                 }
-                Log.e("user_List", usersOption.toString());
+                Log.i("user_List", usersOption.toString());
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {

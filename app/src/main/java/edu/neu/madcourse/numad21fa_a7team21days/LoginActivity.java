@@ -21,7 +21,7 @@ import com.google.firebase.database.ValueEventListener;
 public class LoginActivity extends AppCompatActivity {
     private Button login;
     private EditText userName;
-    private DatabaseReference mDatabase;
+    private DatabaseReference mDatabase = tools.mDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +29,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         userName = findViewById(R.id.userNameText);
         login = findViewById(R.id.loginButton);
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+
     }
 
     public void onClick(View view) {
@@ -39,7 +39,7 @@ public class LoginActivity extends AppCompatActivity {
                 String userGivenName = userName.getText().toString().trim();
 
                 // make sure not empty user name
-                if (userGivenName.length() == 0 || userGivenName.equals(null)){
+                if (userGivenName.length() == 0 || userGivenName == null){
                     Toast.makeText(getApplicationContext(),"not accept empty user name",Toast.LENGTH_SHORT).show();
                     break;
                 }
