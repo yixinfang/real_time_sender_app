@@ -21,12 +21,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -79,28 +83,6 @@ public class SendStickerActivity extends AppCompatActivity{
         curUserTextView.setText(curUser);
 
         receiver = findViewById(R.id.sentToUser);
-        receiverName = receiver.getText().toString().trim();
-        System.out.println(receiverName);
-        mUser.addListenerForSingleValueEvent(new ValueEventListener() {
-            // check if the user exist in the database
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                // check if "user" has a child of userGivenName
-                if(snapshot.hasChild(receiverName)){
-                    Toast.makeText(getApplicationContext(),"receiver exist",Toast.LENGTH_SHORT).show();
-                    // if not create the user
-                }else{
-                    signUpUser(receiverName);
-                    Toast.makeText(getApplicationContext(),"new receiver created",Toast.LENGTH_SHORT).show();
-                }
-
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-            }
-        });
-
-
 
         // 3 sticker to choose
         selectedImgTextView = findViewById(R.id.selectImgText);
@@ -211,11 +193,33 @@ public class SendStickerActivity extends AppCompatActivity{
 ////                users.put("yixin", new User("Yixin"));
 ////                users.put("haowen", new User("Haowen"));
 ////                mUser.setValue(users);
-                mUser.addValueEventListener(new ValueEventListener() {
+                receiverName = receiver.getText().toString().trim();
+                System.out.println(receiverName);
+                mUser.addListenerForSingleValueEvent(new ValueEventListener() {
+                    // check if the user exist in the database
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        // check if "user" has a child of userGivenName
+                        if(snapshot.hasChild(receiverName)){
+                            Toast.makeText(getApplicationContext(),"receiver " + receiverName +" exist",Toast.LENGTH_SHORT).show();
+                            // if not create the user
+                        }else{
+                            signUpUser(receiverName);
+                            Toast.makeText(getApplicationContext(),"new receiver created",Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                    }
+                });
+                mUser.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
 
                         Log.i("User Count " ,""+snapshot.getChildrenCount());
+                        Boolean validSend = false;
+
                         for (DataSnapshot postSnapshot: snapshot.getChildren()) {
                             User user = postSnapshot.getValue(User.class);
                             Log.i("Get Data", user.getUserName());
@@ -223,10 +227,59 @@ public class SendStickerActivity extends AppCompatActivity{
                             String curTime = LocalDate.now().format(formatter);
 
                             if(user.getUserName().equals(receiverName) && selectedImgId != null) {
-                                user.getReceivedSticker().add(new Sticker(selectedImgId, curUser, curTime));
-                                mDatabase.child("users").child(receiverName).setValue(user);
+                                //user.getReceivedSticker().add(new Sticker(selectedImgId, curUser, curTime));
+                                ////////////
+
+                                ArrayList<Sticker> tmp = user.getReceivedSticker();
+                                tmp.add(new Sticker(selectedImgId, curUser, curTime));
+                                user.setReceivedSticker(tmp);
+                                DatabaseReference ref = postSnapshot.getRef().child("receivedSticker");
+                                //DatabaseReference ref = postSnapshot.getRef().child(receiverName).child("receivedSticker");
+                                ref.setValue(tmp);
+
+//                                mDatabase.child("users").child(receiverName).setValue(user);
                                 Toast.makeText(getApplicationContext(),"sticker sent",Toast.LENGTH_SHORT).show();
+                                validSend = true;
+                                ///////////////
+//                                FirebaseFirestore db = FirebaseFirestore.getInstance();
+//
+//                                WriteBatch writeBatch = db.batch();
+//                                ArrayList<Sticker> tmp = user.getReceivedSticker();
+//                                Toast.makeText(getApplicationContext(),"receiver size" + tmp.size(),Toast.LENGTH_SHORT).show();
+//
+//
+//
+//
+//                                for (int i=tmp.size()-1;i>2490;i--){
+//                                    DocumentReference reff = db.collection("receivedSticker").document("i");
+//                                    Toast.makeText(getApplicationContext(),"size" + i,Toast.LENGTH_SHORT).show();
+//
+//                                    writeBatch.delete(reff);
+//                                    Toast.makeText(getApplicationContext(),"size ?",Toast.LENGTH_SHORT).show();
+//
+//                                }
+
+//                                writeBatch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                    @Override
+//                                    public void onSuccess(Void aVoid) {
+//                                        // Do anything here
+//                                    }
+//                                });
+
                             }
+                        }
+                        if (validSend) {
+                            for (DataSnapshot postSnapshot: snapshot.getChildren()) {
+                                User user = postSnapshot.getValue(User.class);
+                                if(user.getUserName().equals(curUser)){
+                                    DatabaseReference ref2 = postSnapshot.getRef().child("numberOfSend");
+                                    ref2.setValue(user.getNumberOfSend()+1);
+                                    Toast.makeText(getApplicationContext(),"you have sent " + user.getNumberOfSend()+1 +" stickers",Toast.LENGTH_SHORT).show();
+
+                                }
+
+                            }
+
                         }
 //                        Log.i("user_receive_update", users.get);
                     }
