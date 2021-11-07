@@ -20,11 +20,11 @@ public class HistoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
         TextView v = findViewById(R.id.HistoryView);
-        tools.mDatabase.child("users").addValueEventListener(new ValueEventListener() {
+        String userName = (String) getIntent().getSerializableExtra("userName");
+        tools.mDatabase.child("users").child(userName).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 StringBuilder sb = new StringBuilder(v.getText());
-                Log.i("User Count " ,""+snapshot.getChildrenCount());
                 for (DataSnapshot postSnapshot: snapshot.getChildren()) {
                     User user = postSnapshot.getValue(User.class);
                     sb.append(user.getUserName());
