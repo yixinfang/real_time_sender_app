@@ -38,6 +38,16 @@ public class User {
     }
 
 
+    public String toString() {
+        StringBuilder res = new StringBuilder();
+        res.append("UserName: ").append(userName).append("\n").append("received: ").append("\n");
+        for (Sticker sticker : receivedSticker) {
+            res.append("    ").append(sticker.getStickerId()).append(", from ").append(sticker.getSender()).append(", ")
+                    .append(sticker.getSendTime()).append("\n");
+        }
+        return res.toString();
+    }
+
     public void setUserName(String userName) {
         this.userName = userName;
     }

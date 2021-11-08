@@ -14,20 +14,34 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
 public class HistoryActivity extends AppCompatActivity {
+    private TextView v;
+    private String userName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
-        TextView v = findViewById(R.id.HistoryView);
-        String userName = (String) getIntent().getSerializableExtra("userName");
-        tools.mDatabase.child("users").child(userName).addValueEventListener(new ValueEventListener() {
+        v = findViewById(R.id.HistoryView);
+        userName = (String) getIntent().getSerializableExtra("userName");
+        getUserHistory();
+        //v.setText(userName);
+       // getUserHistory();
+    }
+
+
+    private void getUserHistory() {
+        StringBuilder sb = new StringBuilder();
+        tools.mDatabase.child("users").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                StringBuilder sb = new StringBuilder(v.getText());
+
                 for (DataSnapshot postSnapshot: snapshot.getChildren()) {
                     User user = postSnapshot.getValue(User.class);
-                    sb.append(user.getUserName());
+//                    sb.append(user.getUserName()).append("\n");
+                    if (user.getUserName().equals(userName)) {
+                        sb.append(user.toString());
+                    }
+                    //sb.append(user.getUserName());
                     Log.i("Get Data", user.getUserName());
                 }
                 v.setText(sb.toString());
@@ -38,5 +52,6 @@ public class HistoryActivity extends AppCompatActivity {
 
             }
         });
+        //return sb.toString();
     }
 }
