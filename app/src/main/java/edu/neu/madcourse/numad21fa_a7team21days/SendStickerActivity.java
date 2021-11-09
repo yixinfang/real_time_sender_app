@@ -7,7 +7,10 @@ import static com.google.firebase.messaging.Constants.MessagePayloadKeys.SENDER_
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -20,6 +23,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -34,6 +39,7 @@ import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
 
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -44,6 +50,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class SendStickerActivity extends AppCompatActivity{
 
@@ -63,19 +73,17 @@ public class SendStickerActivity extends AppCompatActivity{
     private Map<String, User> users;
     private EditText receiver;
     private String receiverName;
+    private Spinner mSpinner;
+    private FirebaseMessaging firebaseMessaging;
+    private MyAPIservice myAPIservice;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_send_sticker);
         mDatabase = tools.mDatabase;
         mUser = mDatabase.child("users");
-//        Map<String, User> users = new HashMap<>();
-//        users = new HashMap<>();
-//
-////        users.put("yixin", new User("yixin"));
-////        users.put("haowen", new User("haowen"));
-//
-//        mUser.setValue(users);
+        myAPIservice = Client.getClient("https://fcm.googleapis.com/").create(MyAPIservice.class);
+
 
         // login user
         curUser = (String) getIntent().getSerializableExtra("userName");
@@ -92,30 +100,21 @@ public class SendStickerActivity extends AppCompatActivity{
 
         // selected  users exist in the database
         getDbUser();
-        Spinner spinner = findViewById(R.id.userSpinner);
-        adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, usersOption);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-        spinner.setSelection(0, false);
-        for (String s : usersOption) {
-            System.out.println(s);
-        }
+        mSpinner = findViewById(R.id.userSpinner);
 
-        spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+        mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 // get the selected user
-                System.out.println("1");
                 selectedUser = parentView.getItemAtPosition(position).toString();
-                Log.i("selectedUser", selectedUser);
             }
+
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-                Log.e("something go wrong","123");
+                Log.e("something go wrong", "123");
             }
         });
-        adapter.notifyDataSetChanged();
 
 
         // get token
@@ -130,9 +129,10 @@ public class SendStickerActivity extends AppCompatActivity{
                         // Get new FCM registration token
                         String FIREBASE_MESSAGE_TOKEN = task.getResult();
                         // Log and toast
-                        Log.i("FIREBASE_MESSAGE_TOKEN", FIREBASE_MESSAGE_TOKEN);
                     }
                 });
+
+
     }
 
 // FIREBASE_MESSAGE_TOKEN: ebk_vsvuShyGd1tTd3_2KJ:APA91bG0FdHkLtRMD1SUfOnCXbZ5iNz3kNtuU_Qvze2fT4lbDdAen7Qv3DcPSI-2AJhi8rDzLbbJk-R1U8BrihHB6akXBA1eqBhbsQn8zmT_jrrgBRQ5lxehcZBfsRw2zcgVTU0tzSLe
@@ -142,15 +142,19 @@ public class SendStickerActivity extends AppCompatActivity{
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 usersOption.clear();
-                Log.i("User Count " ,""+snapshot.getChildrenCount());
                 for (DataSnapshot postSnapshot: snapshot.getChildren()) {
                     User user = postSnapshot.getValue(User.class);
-                    Log.i("Get Data", user.getUserName());
                     if(!user.getUserName().equals(curUser)) {
                         usersOption.add(user.getUserName());
                     }
                 }
-                Log.i("user_List", usersOption.toString());
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ArrayAdapter<String> adapter = new ArrayAdapter<String>(SendStickerActivity.this, android.R.layout.simple_spinner_item, usersOption);
+                        mSpinner.setAdapter(adapter);
+                    }
+                });
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
@@ -166,6 +170,8 @@ public class SendStickerActivity extends AppCompatActivity{
     }
 
 
+
+
     public void getNumberOfSend(){
 
     }
@@ -174,25 +180,6 @@ public class SendStickerActivity extends AppCompatActivity{
         switch (view.getId()) {
             case R.id.sendButton:
                 // sent
-//                FirebaseMessaging fm = FirebaseMessaging.getInstance();
-//                Spinner spinner = findViewById(R.id.userSpinner);
-//                fm.send(new RemoteMessage.Builder(SENDER_ID + spinner.getPopupContext())
-//                        .addData("my_message", "Hello World")
-//                        .addData("my_action","SAY_HELLO")
-//                        .build());
-                Spinner spinner = findViewById(R.id.userSpinner);
-//                mUser = mDatabase.child("users").child(spinner.getSelectedItem().toString());
-
-//                User cur = users.get("haowen");
-//                Date date = Calendar.getInstance().getTime();
-//                DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
-//                String strDate = dateFormat.format(date);
-//                cur.getReceivedSticker().add(new Sticker(selectedImgId, curUser, strDate));
-//                mUser = mDatabase.child("users").child("haowen");
-////                Map<String, User> users = new HashMap<>();
-////                users.put("yixin", new User("Yixin"));
-////                users.put("haowen", new User("Haowen"));
-////                mUser.setValue(users);
                 receiverName = receiver.getText().toString().trim();
                 System.out.println(receiverName);
                 mUser.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -200,11 +187,11 @@ public class SendStickerActivity extends AppCompatActivity{
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         // check if "user" has a child of userGivenName
-                        if(snapshot.hasChild(receiverName)){
-                            Toast.makeText(getApplicationContext(),"receiver " + receiverName +" exist",Toast.LENGTH_SHORT).show();
+                        if(snapshot.hasChild(selectedUser)){
+                            Toast.makeText(getApplicationContext(),"receiver " + selectedUser +" exist",Toast.LENGTH_SHORT).show();
                             // if not create the user
                         }else{
-                            signUpUser(receiverName);
+                            signUpUser(selectedUser);
                             Toast.makeText(getApplicationContext(),"new receiver created",Toast.LENGTH_SHORT).show();
                         }
 
@@ -216,17 +203,14 @@ public class SendStickerActivity extends AppCompatActivity{
                 mUser.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                        Log.i("User Count " ,""+snapshot.getChildrenCount());
                         Boolean validSend = false;
 
                         for (DataSnapshot postSnapshot: snapshot.getChildren()) {
                             User user = postSnapshot.getValue(User.class);
-                            Log.i("Get Data", user.getUserName());
                             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
                             String curTime = LocalDate.now().format(formatter);
 
-                            if(user.getUserName().equals(receiverName) && selectedImgId != null) {
+                            if(user.getUserName().equals(selectedUser) && selectedImgId != null) {
                                 //user.getReceivedSticker().add(new Sticker(selectedImgId, curUser, curTime));
                                 ////////////
 
@@ -237,35 +221,17 @@ public class SendStickerActivity extends AppCompatActivity{
                                 //DatabaseReference ref = postSnapshot.getRef().child(receiverName).child("receivedSticker");
                                 ref.setValue(tmp);
 
+                                sendNotification(curUser, selectedUser, selectedImgId);
+                                Toast.makeText(getApplicationContext(),"Notification sent",Toast.LENGTH_SHORT).show();
+
 //                                mDatabase.child("users").child(receiverName).setValue(user);
                                 Toast.makeText(getApplicationContext(),"sticker sent",Toast.LENGTH_SHORT).show();
+                                RemoteMessage remoteMessage = new RemoteMessage.Builder(selectedUser)
+                                        .setMessageId(Integer.toString(selectedImgId))
+                                        .addData(curUser, curTime)
+                                        .build();
+
                                 validSend = true;
-                                ///////////////
-//                                FirebaseFirestore db = FirebaseFirestore.getInstance();
-//
-//                                WriteBatch writeBatch = db.batch();
-//                                ArrayList<Sticker> tmp = user.getReceivedSticker();
-//                                Toast.makeText(getApplicationContext(),"receiver size" + tmp.size(),Toast.LENGTH_SHORT).show();
-//
-//
-//
-//
-//                                for (int i=tmp.size()-1;i>2490;i--){
-//                                    DocumentReference reff = db.collection("receivedSticker").document("i");
-//                                    Toast.makeText(getApplicationContext(),"size" + i,Toast.LENGTH_SHORT).show();
-//
-//                                    writeBatch.delete(reff);
-//                                    Toast.makeText(getApplicationContext(),"size ?",Toast.LENGTH_SHORT).show();
-//
-//                                }
-
-//                                writeBatch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-//                                    @Override
-//                                    public void onSuccess(Void aVoid) {
-//                                        // Do anything here
-//                                    }
-//                                });
-
                             }
                         }
                         if (validSend) {
@@ -293,6 +259,7 @@ public class SendStickerActivity extends AppCompatActivity{
                 // show history
                 Intent intent = new Intent(this, HistoryActivity.class);
                 intent.putExtra("userName", curUser);
+
                 startActivity(intent);
                 break;
             case R.id.stickerImage1:
@@ -315,6 +282,45 @@ public class SendStickerActivity extends AppCompatActivity{
             default:
                 break;
         }
+    }
+
+    private void UpdateToken(){
+        FirebaseUser firebaseUser= FirebaseAuth.getInstance().getCurrentUser();
+        String refreshToken= String.valueOf(FirebaseMessaging.getInstance().getToken());
+        Token token= new Token(refreshToken);
+        FirebaseDatabase.getInstance().getReference("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(token);
+    }
+
+
+    public void sendNotification(String curUser, String selectedUser, Integer selectedImgId) {
+        Data data = new Data(curUser, selectedUser, selectedImgId);
+        NotificationSender sender = new NotificationSender(data, selectedUser);
+        Toast.makeText(getApplicationContext(),"Notification 1",Toast.LENGTH_SHORT).show();
+        try {
+            myAPIservice.sendNotifcation(sender).enqueue(new Callback<MyResponse>() {
+                @Override
+                public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
+                    Log.i("send", response.message());
+                    if (response.body() != null) {
+                        Toast.makeText(getApplicationContext(),"Notification 2",Toast.LENGTH_SHORT).show();
+                        if (response.body().success != 1) {
+                            Toast.makeText(getApplicationContext(), "Failed ", Toast.LENGTH_LONG);
+                        }
+                        Toast.makeText(getApplicationContext(),"Notification 3",Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<MyResponse> call, Throwable t) {
+                    Log.e("Error", t.getMessage());
+                }
+            });
+        } catch (Exception e) {
+            Log.e("send", e.getMessage());
+        }
+
+        Toast.makeText(getApplicationContext(),"Notification 4",Toast.LENGTH_SHORT).show();
+
     }
 
 
