@@ -10,8 +10,10 @@ import retrofit2.http.POST;
 public interface MyAPIservice {
     @Headers(
             {
-                    "Content-Type:application/json",
-                    "Authorization:key=BG3V2hp8ACnpQu2uujC9S9QNQGge1G0onOZOKFxOhpAUaA4JrDw6q79gRmlwtj42cNWjUzDbXcFP4cNy_cgnmp8" // Your server key refer to video for finding your server key
+
+
+            "Content-Type:application/json",
+                    "Authorization:key=AAAAabFiQns:APA91bG3ArtLRHlcn2mZdYl-02AM-mvUISQlJVIJx2jUhaKlKZmYw2Hc2RptWeOys8QJJreX5m9eWCkZKpxtzEO2YsrMnU4UC0es-MWdsotHg8Nl5lE1qrtapNQjh6MJrXtIZlk8oOB3" // Your server key refer to video for finding your server key
             }
     )
 

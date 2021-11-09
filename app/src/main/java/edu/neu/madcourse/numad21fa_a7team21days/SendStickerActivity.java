@@ -23,6 +23,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.blankj.utilcode.util.ToastUtils;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -51,6 +52,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.neu.madcourse.numad21fa_a7team21days.bean.FcmBeanData;
+import edu.neu.madcourse.numad21fa_a7team21days.bean.NotificationBean;
+import edu.neu.madcourse.numad21fa_a7team21days.bean.SendFcmBean;
+import edu.neu.madcourse.numad21fa_a7team21days.bean.SendFcmResponse;
+import edu.neu.madcourse.numad21fa_a7team21days.http.ApiEndpointClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -221,7 +227,8 @@ public class SendStickerActivity extends AppCompatActivity{
                                 //DatabaseReference ref = postSnapshot.getRef().child(receiverName).child("receivedSticker");
                                 ref.setValue(tmp);
 
-                                sendNotification(curUser, selectedUser, selectedImgId);
+                                //sendNotification(curUser, selectedUser, selectedImgId);
+                                sendNotification();
                                 Toast.makeText(getApplicationContext(),"Notification sent",Toast.LENGTH_SHORT).show();
 
 //                                mDatabase.child("users").child(receiverName).setValue(user);
@@ -291,37 +298,74 @@ public class SendStickerActivity extends AppCompatActivity{
         FirebaseDatabase.getInstance().getReference("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(token);
     }
 
+    public void sendNotification() {
+        SendFcmBean sendFcmBean = new SendFcmBean();
+        sendFcmBean.setTo("/topics/TopicName");
+        NotificationBean notificationBean = new NotificationBean();
+        notificationBean.setTitle("Hi i am title");
+        notificationBean.setTitle("Hi i am body");
+        sendFcmBean.setNotification(notificationBean);
 
-    public void sendNotification(String curUser, String selectedUser, Integer selectedImgId) {
-        Data data = new Data(curUser, selectedUser, selectedImgId);
-        NotificationSender sender = new NotificationSender(data, selectedUser);
-        Toast.makeText(getApplicationContext(),"Notification 1",Toast.LENGTH_SHORT).show();
-        try {
-            myAPIservice.sendNotifcation(sender).enqueue(new Callback<MyResponse>() {
-                @Override
-                public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
-                    Log.i("send", response.message());
-                    if (response.body() != null) {
-                        Toast.makeText(getApplicationContext(),"Notification 2",Toast.LENGTH_SHORT).show();
-                        if (response.body().success != 1) {
-                            Toast.makeText(getApplicationContext(), "Failed ", Toast.LENGTH_LONG);
+        FcmBeanData fcmBeanData = new FcmBeanData();
+        fcmBeanData.setTitle("Hi i am title");
+        fcmBeanData.setBody("Hi i am body");
+        fcmBeanData.setSendName(curUser);
+        fcmBeanData.setReceiveName(selectedUser);
+        fcmBeanData.setBigImage(selectedImgId);
+        sendFcmBean.setData(fcmBeanData);
+
+        ApiEndpointClient.getEndpointV2().sendFCMMessage(sendFcmBean)
+                .enqueue(new Callback<SendFcmResponse>() {
+                    @Override
+                    public void onResponse(Call<SendFcmResponse> call, Response<SendFcmResponse> response) {
+                        Log.i("aaa", "sendFCMMessage response : " + response.body());
+
+                        SendFcmResponse sendFcmResponse = response.body();
+                        if (sendFcmResponse != null && sendFcmResponse.getMessage_id() > 0) {
+                            ToastUtils.showShort("send success message_id : " + sendFcmResponse.getMessage_id());
                         }
-                        Toast.makeText(getApplicationContext(),"Notification 3",Toast.LENGTH_SHORT).show();
                     }
-                }
 
-                @Override
-                public void onFailure(Call<MyResponse> call, Throwable t) {
-                    Log.e("Error", t.getMessage());
-                }
-            });
-        } catch (Exception e) {
-            Log.e("send", e.getMessage());
-        }
+                    @Override
+                    public void onFailure(Call<SendFcmResponse> call, Throwable t) {
 
-        Toast.makeText(getApplicationContext(),"Notification 4",Toast.LENGTH_SHORT).show();
-
+                    }
+                });
     }
+
+
+
+
+//    public void sendNotification(String curUser, String selectedUser, Integer selectedImgId) {
+//        Data data = new Data(curUser, selectedUser, selectedImgId);
+//        NotificationSender sender = new NotificationSender(data, selectedUser);
+//        Toast.makeText(getApplicationContext(),"Notification 1",Toast.LENGTH_SHORT).show();
+//        try {
+//            myAPIservice.sendNotifcation(sender).enqueue(new Callback<MyResponse>() {
+//                @Override
+//                public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
+//                    Log.i("send", response.message());
+//                    if (response.body() != null) {
+//                        Toast.makeText(getApplicationContext(),"Notification 2",Toast.LENGTH_SHORT).show();
+//                        if (response.body().success != 1) {
+//                            Toast.makeText(getApplicationContext(), "Failed ", Toast.LENGTH_LONG);
+//                        }
+//                        Toast.makeText(getApplicationContext(),"Notification 3",Toast.LENGTH_SHORT).show();
+//                    }
+//                }
+//
+//                @Override
+//                public void onFailure(Call<MyResponse> call, Throwable t) {
+//                    Log.e("Error", t.getMessage());
+//                }
+//            });
+//        } catch (Exception e) {
+//            Log.e("send", e.getMessage());
+//        }
+//
+//        Toast.makeText(getApplicationContext(),"Notification 4",Toast.LENGTH_SHORT).show();
+//
+//    }
 
 
 
