@@ -12,7 +12,7 @@
         <entry key="app/src/main/res/layout/activity_history.xml" value="0.335" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.13333333333333333" />
         <entry key="app/src/main/res/layout/activity_receive_notification.xml" value="0.1480978260869565" />
-        <entry key="app/src/main/res/layout/activity_send_sticker.xml" value="0.1480978260869565" />
+        <entry key="app/src/main/res/layout/activity_send_sticker.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_user_history.xml" value="0.1" />
         <entry key="app/src/main/res/layout/sticker_card.xml" value="0.625" />
       </map>

@@ -1,4 +1,4 @@
-package edu.neu.madcourse.numad21fa_a7team21days;
+package edu.neu.madcourse.numad21fa_a7team21days.cookbook;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -34,7 +34,13 @@ public class User {
     }
 
     public ArrayList<Sticker> getReceivedSticker() {
-        return receivedSticker;
+        ArrayList<Sticker> tmp = new ArrayList<>();
+        for (Sticker sticker : receivedSticker) {
+            if (!sticker.getSender().equals(userName)) {
+                tmp.add(sticker);
+            }
+        }
+        return tmp;
     }
 
 
@@ -42,8 +48,11 @@ public class User {
         StringBuilder res = new StringBuilder();
         res.append("UserName: ").append(userName).append("\n").append("received: ").append("\n");
         for (Sticker sticker : receivedSticker) {
-            res.append("    ").append(sticker.getStickerId()).append(", from ").append(sticker.getSender()).append(", ")
-                    .append(sticker.getSendTime()).append("\n");
+            if (!sticker.getSender().equals(userName)){
+                res.append("    ").append(sticker.getStickerId()).append(", from ").append(sticker.getSender()).append(", ")
+                        .append(sticker.getSendTime()).append("\n");
+            }
+
         }
         return res.toString();
     }

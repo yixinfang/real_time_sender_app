@@ -1,4 +1,4 @@
-package edu.neu.madcourse.numad21fa_a7team21days;
+package edu.neu.madcourse.numad21fa_a7team21days.cookbook;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;

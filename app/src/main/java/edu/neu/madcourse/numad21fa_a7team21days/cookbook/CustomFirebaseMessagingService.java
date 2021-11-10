@@ -1,4 +1,4 @@
-package edu.neu.madcourse.numad21fa_a7team21days;
+package edu.neu.madcourse.numad21fa_a7team21days.cookbook;
 
 import static android.app.Notification.VISIBILITY_SECRET;
 
@@ -8,13 +8,12 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
-import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -25,9 +24,10 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
-import org.json.JSONObject;
-
-import java.util.Map;
+import edu.neu.madcourse.numad21fa_a7team21days.R;
+import edu.neu.madcourse.numad21fa_a7team21days.SendStickerActivity;
+import edu.neu.madcourse.numad21fa_a7team21days.cookbook.User;
+import edu.neu.madcourse.numad21fa_a7team21days.cookbook.tools;
 
 public class CustomFirebaseMessagingService extends FirebaseMessagingService {
 
@@ -38,9 +38,66 @@ public class CustomFirebaseMessagingService extends FirebaseMessagingService {
     private String title;
     private String message;
 
+    private static final String TAG = "mFirebaseIIDService";
+    private static final String SUBSCRIBE_TO = "userABC";
+    private String token;
+
+    public static class companion{
+        SharedPreferences sharedPreferences;
+        String token;
+
+        public companion(SharedPreferences sharedPreferences, String token) {
+            this.sharedPreferences = sharedPreferences;
+            this.token = token;
+        }
+
+        public SharedPreferences getSharedPreferences() {
+            return sharedPreferences;
+        }
+
+        public void setSharedPreferences(SharedPreferences sharedPreferences) {
+            this.sharedPreferences = sharedPreferences;
+        }
+
+        public String getToken() {
+            return sharedPreferences.getString("token", "");
+        }
+
+        public void setToken(String value) {
+            sharedPreferences.edit().putString("token", value).apply();
+        }
+    }
+
+
+
+
+    @Override
+    public void onNewToken(String newToken) {
+        super.onNewToken(newToken);
+        token = newToken;
+
+        /*
+          This method is invoked whenever the token refreshes
+          OPTIONAL: If you want to send messages to this application instance
+          or manage this apps subscriptions on the server side,
+          you can send this token to your server.
+        */
+        String refreshToken = FirebaseMessaging.getInstance().getToken().toString();
+
+        // Once the token is generated, subscribe to topic with the userId
+        FirebaseMessaging.getInstance().subscribeToTopic(SUBSCRIBE_TO);
+        // to save token in firebase db
+        User user = new User(token);
+        tools.mDatabase.child("users").child(token).setValue(user);
+        Log.i(TAG, "onTokenRefresh completed with token: " + refreshToken);
+    }
+
+
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
-        super.onMessageReceived(remoteMessage);
+        super.onMessageReceived(remoteMessage); ////
+        Toast.makeText(getApplicationContext(),"Notification received",Toast.LENGTH_SHORT).show();
+
         String channelId = "numad21fa_a7team";
         String channelName = "NUMAD21FA";
         sender = remoteMessage.getData().get("sender");
@@ -57,12 +114,13 @@ public class CustomFirebaseMessagingService extends FirebaseMessagingService {
         String notificationTitle = remoteMessage.getNotification().getTitle();
         String notificationContent = remoteMessage.getNotification().getBody();
 
-        Intent intent = new Intent(this, SendStickerActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        Intent intent = new Intent(this, SendStickerActivity.class); ////
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);////
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);////
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);////
+        String notificationID = receiver;////
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, channelId);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -80,10 +138,12 @@ public class CustomFirebaseMessagingService extends FirebaseMessagingService {
         }
         Toast.makeText(getApplicationContext(),"Notification 5",Toast.LENGTH_SHORT).show();
 
-        notificationBuilder.setSmallIcon(R.mipmap.ic_launcher_round);
-        notificationBuilder.setContentTitle(title);
-        notificationBuilder.setContentText(message).setAutoCancel(true);
-        notificationBuilder.setContentIntent(pendingIntent);
+        notificationBuilder.setSmallIcon(R.mipmap.ic_launcher_round)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent);
+
         switch (Integer.valueOf(imageID)) {
             case 1:
                 Bitmap bm1 = BitmapFactory.decodeResource(this.getResources(), R.drawable.stciker_1);
@@ -102,6 +162,8 @@ public class CustomFirebaseMessagingService extends FirebaseMessagingService {
                 notificationBuilder.setLargeIcon(bm4);
                 break;
         }
+        notificationBuilder.build();
+        notificationManager.notify();
 
         //createNotification(notificationTitle, notificationContent);
 //        RemoteMessage remoteMessage1 = new RemoteMessage()

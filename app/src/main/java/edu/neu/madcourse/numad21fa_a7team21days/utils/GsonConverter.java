@@ -1,11 +1,11 @@
 package edu.neu.madcourse.numad21fa_a7team21days.utils;
 
-import android.text.TextUtils;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
+
+import android.text.TextUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -66,4 +66,5 @@ public class GsonConverter {
         String json = toJson(obj);
         return fromJson(json, tClass);
     }
+
 }

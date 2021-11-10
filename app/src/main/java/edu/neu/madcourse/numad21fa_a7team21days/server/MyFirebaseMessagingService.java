@@ -1,6 +1,7 @@
 package edu.neu.madcourse.numad21fa_a7team21days.server;
 
-import static android.app.Notification.VISIBILITY_SECRET;
+import com.google.firebase.messaging.FirebaseMessagingService;
+import com.google.firebase.messaging.RemoteMessage;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -17,27 +18,28 @@ import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.core.app.NotificationCompat;
-
-import com.google.firebase.messaging.FirebaseMessagingService;
-import com.google.firebase.messaging.RemoteMessage;
-
 import org.json.JSONObject;
 
 import java.util.Map;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
 import edu.neu.madcourse.numad21fa_a7team21days.R;
+//import edu.neu.madcourse.numad21fa_a7team21days.activity.SendStickerActivity;
 import edu.neu.madcourse.numad21fa_a7team21days.SendStickerActivity;
 import edu.neu.madcourse.numad21fa_a7team21days.base.CCApplication;
 import edu.neu.madcourse.numad21fa_a7team21days.bean.FcmBeanData;
 import edu.neu.madcourse.numad21fa_a7team21days.utils.GsonConverter;
 import edu.neu.madcourse.numad21fa_a7team21days.utils.SharedPrefUtils;
 
+import static android.app.Notification.VISIBILITY_SECRET;
+
 @SuppressLint("MissingFirebaseInstanceTokenRefresh")
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static volatile int NOTIFY_ID = 1;
+
+
 
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
@@ -72,13 +74,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             Uri defaultSoundUri;
             String channelId;
 
-            channelId = "numad21fa_a7team21days";
+            channelId = "a7team21days";
             defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
             final NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             final NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, channelId);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                NotificationChannel channel = new NotificationChannel(channelId, "numad21fa_a7team21days", NotificationManager.IMPORTANCE_DEFAULT);
+                NotificationChannel channel = new NotificationChannel(channelId, "numad21fa_a7team21days", NotificationManager.IMPORTANCE_HIGH);
                 channel.setLockscreenVisibility(VISIBILITY_SECRET);
                 channel.setSound(defaultSoundUri, Notification.AUDIO_ATTRIBUTES_DEFAULT);
                 channel.setBypassDnd(true);
@@ -91,6 +93,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             notificationBuilder.setContentTitle(fcmBeanData.getTitle());
             notificationBuilder.setContentText(fcmBeanData.getBody()).setAutoCancel(true);
             notificationBuilder.setContentIntent(pendingIntent);
+            notificationBuilder.setPriority(Notification.PRIORITY_HIGH);
+            if (Build.VERSION.SDK_INT >= 21) notificationBuilder.setVibrate(new long[0]);
             switch (fcmBeanData.getBigImage()) {
                 case 1:
                     Bitmap bm1 = BitmapFactory.decodeResource(CCApplication.getInstance().getResources(), R.drawable.stciker_1);

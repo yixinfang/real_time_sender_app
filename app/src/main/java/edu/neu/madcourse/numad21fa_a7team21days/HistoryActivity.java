@@ -3,7 +3,6 @@ package edu.neu.madcourse.numad21fa_a7team21days;
 import static java.lang.String.valueOf;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -12,12 +11,15 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
 
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+
+import edu.neu.madcourse.numad21fa_a7team21days.cookbook.Sticker;
+import edu.neu.madcourse.numad21fa_a7team21days.cookbook.User;
+import edu.neu.madcourse.numad21fa_a7team21days.cookbook.tools;
 
 public class HistoryActivity extends AppCompatActivity {
     private TextView v;

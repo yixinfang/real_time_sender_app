@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
+import edu.neu.madcourse.numad21fa_a7team21days.cookbook.Sticker;
+
 
 public class RviewAdaptor extends RecyclerView.Adapter<RviewHolder> {
 
