@@ -93,9 +93,6 @@ public class SendStickerActivity extends AppCompatActivity{
         mUser = mDatabase.child("users");
         FirebaseMessaging.getInstance().subscribeToTopic("TopicName");
 
-        //myAPIservice = Client.getClient("https://fcm.googleapis.com/").create(MyAPIservice.class);
-
-
         // login user
         curUser = (String) getIntent().getSerializableExtra("userName");
         curUserTextView = findViewById(R.id.curUserText);
@@ -146,13 +143,9 @@ public class SendStickerActivity extends AppCompatActivity{
                         Log.e("FIREBASE_MESSAGE_TOKEN", FIREBASE_MESSAGE_TOKEN);
                     }
                 });
-        //FirebaseMessaging.getInstance().subscribeToTopic("TopicName");
-        //FirebaseMessaging.getInstance().unsubscribeFromTopic("TopicName");
-
 
     }
 
-// FIREBASE_MESSAGE_TOKEN: ebk_vsvuShyGd1tTd3_2KJ:APA91bG0FdHkLtRMD1SUfOnCXbZ5iNz3kNtuU_Qvze2fT4lbDdAen7Qv3DcPSI-2AJhi8rDzLbbJk-R1U8BrihHB6akXBA1eqBhbsQn8zmT_jrrgBRQ5lxehcZBfsRw2zcgVTU0tzSLe
 
     public void getDbUser() {
         mUser.addValueEventListener(new ValueEventListener() {
@@ -192,78 +185,6 @@ public class SendStickerActivity extends AppCompatActivity{
         switch (view.getId()) {
             case R.id.sendButton:
                 // sent
-//                mUser.addListenerForSingleValueEvent(new ValueEventListener() {
-//                    // check if the user exist in the database
-//                    @Override
-//                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                        // check if "user" has a child of userGivenName
-//                        if(snapshot.hasChild(selectedUser)){
-//                            Toast.makeText(getApplicationContext(),"receiver " + selectedUser +" exist",Toast.LENGTH_SHORT).show();
-//                            // if not create the user
-//                        }
-//                    }
-//                    @Override
-//                    public void onCancelled(@NonNull DatabaseError error) {
-//                    }
-//                });
-//                mUser.addListenerForSingleValueEvent(new ValueEventListener() {
-//                    @Override
-//                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                        Boolean validSend = false;
-//
-//                        for (DataSnapshot postSnapshot: snapshot.getChildren()) {
-//                            User user = postSnapshot.getValue(User.class);
-//                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-//                            String curTime = LocalDate.now().format(formatter);
-//
-//                            if(user.getUserName().equals(selectedUser) && selectedImgId != null) {
-//                                //user.getReceivedSticker().add(new Sticker(selectedImgId, curUser, curTime));
-//                                ////////////
-
-//                                ArrayList<Sticker> tmp = user.getReceivedSticker();
-//                                tmp.add(new Sticker(selectedImgId, curUser, curTime));
-//                                user.setReceivedSticker(tmp);
-//                                DatabaseReference ref = postSnapshot.getRef().child("receivedSticker");
-//                                //DatabaseReference ref = postSnapshot.getRef().child(receiverName).child("receivedSticker");
-//                                ref.setValue(tmp);
-
-
-////                                sendNotification(curUser, selectedUser, selectedImgId);
-//                                Toast.makeText(getApplicationContext(),"Notification sent",Toast.LENGTH_SHORT).show();
-//
-////                                mDatabase.child("users").child(receiverName).setValue(user);
-//                                Toast.makeText(getApplicationContext(),"sticker sent",Toast.LENGTH_SHORT).show();
-//                                RemoteMessage remoteMessage = new RemoteMessage.Builder(selectedUser)
-//                                        .setMessageId(Integer.toString(selectedImgId))
-//                                        .addData(curUser, curTime)
-//                                        .build();
-//
-//                                validSend = true;
-//                            }
-//                        }
-//                        if (validSend) {
-//                            for (DataSnapshot postSnapshot: snapshot.getChildren()) {
-//                                User user = postSnapshot.getValue(User.class);
-//                                if(user.getUserName().equals(curUser)){
-//                                    DatabaseReference ref2 = postSnapshot.getRef().child("numberOfSend");
-//                                    ref2.setValue(user.getNumberOfSend()+1);
-//                                    Toast.makeText(getApplicationContext(),"you have sent " + user.getNumberOfSend()+1 +" stickers",Toast.LENGTH_SHORT).show();
-//
-//                                }
-//
-//                            }
-//
-//                        }
-////                        Log.i("user_receive_update", users.get);
-//                    }
-//                    @Override
-//                    public void onCancelled(@NonNull DatabaseError error) {
-//                        Log.d("Debug", "onCancelled: ");
-//                    }
-//                });
-//               // doSentNotification();
-//                sendNotification();
-//                //sendNotification(curUser, selectedUser, selectedImgId);
                 doUpdate();
                 doSendNotification();
                 break;
@@ -298,6 +219,113 @@ public class SendStickerActivity extends AppCompatActivity{
                 break;
         }
     }
+
+    private void doUpdate() {
+        if (selectedUser != null) {
+            Toast.makeText(getApplicationContext(),"receiver " + selectedUser +" exist",Toast.LENGTH_SHORT).show();
+        }
+        mUser.addListenerForSingleValueEvent(new ValueEventListener() {
+
+            @RequiresApi(api = Build.VERSION_CODES.O)
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Boolean validSend = false;
+
+                for (DataSnapshot postSnapshot: snapshot.getChildren()) {
+                    User user = postSnapshot.getValue(User.class);
+
+                    //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-mm-dd hh:mm:ss");
+
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+                    String curTime = LocalDate.now().format(formatter);
+                    //String curTime = "20211108";
+
+                    if(user.getUserName().equals(selectedUser) && selectedImgId != null) {
+                        //user.getReceivedSticker().add(new Sticker(selectedImgId, curUser, curTime));
+                        ////////////
+
+                        ArrayList<Sticker> tmp = user.getReceivedSticker();
+                        tmp.add(new Sticker(selectedImgId, curUser, curTime));
+                        user.setReceivedSticker(tmp);
+                        DatabaseReference ref = postSnapshot.getRef().child("receivedSticker");
+                        //DatabaseReference ref = postSnapshot.getRef().child(receiverName).child("receivedSticker");
+                        ref.setValue(tmp);
+
+
+//                                sendNotification(curUser, selectedUser, selectedImgId);
+                        Toast.makeText(getApplicationContext(),"Notification sent",Toast.LENGTH_SHORT).show();
+
+//                                mDatabase.child("users").child(receiverName).setValue(user);
+                        Toast.makeText(getApplicationContext(),"sticker sent",Toast.LENGTH_SHORT).show();
+                        RemoteMessage remoteMessage = new RemoteMessage.Builder(selectedUser)
+                                .setMessageId(Integer.toString(selectedImgId))
+                                .addData(curUser, curTime)
+                                .build();
+
+                        validSend = true;
+                    }
+                }
+                if (validSend) {
+                    for (DataSnapshot postSnapshot: snapshot.getChildren()) {
+                        User user = postSnapshot.getValue(User.class);
+                        if(user.getUserName().equals(curUser)){
+                            DatabaseReference ref2 = postSnapshot.getRef().child("numberOfSend");
+                            ref2.setValue(user.getNumberOfSend()+1);
+                            //Toast.makeText(getApplicationContext(),"you have sent " + user.getNumberOfSend()+1 +" stickers",Toast.LENGTH_SHORT).show();
+
+                        }
+
+                    }
+
+                }
+//                        Log.i("user_receive_update", users.get);
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.d("Debug", "onCancelled: ");
+            }
+        });
+    }
+
+
+    private void doSendNotification() {
+        SendFcmBean sendFcmBean = new SendFcmBean();
+        sendFcmBean.setTo("/topics/TopicName");
+        NotificationBean notificationBean = new NotificationBean();
+        notificationBean.setTitle("Hi i am title");
+        notificationBean.setTitle("Hi i am body");
+        sendFcmBean.setNotification(notificationBean);
+
+        FcmBeanData fcmBeanData = new FcmBeanData();
+        String titleCur = "Hi "+ selectedUser;
+        fcmBeanData.setTitle(titleCur);
+        String messageCur = "You've received a sticker from " + curUser;
+        fcmBeanData.setBody(messageCur);
+        fcmBeanData.setSendName(curUser);
+        fcmBeanData.setReceiveName(selectedUser);
+        fcmBeanData.setBigImage(selectedImgId);
+        sendFcmBean.setData(fcmBeanData);
+
+        ApiEndpointClient.getEndpointV2().sendFCMMessage(sendFcmBean)
+                .enqueue(new Callback<SendFcmResponse>() {
+                    @Override
+                    public void onResponse(Call<SendFcmResponse> call, Response<SendFcmResponse> response) {
+                        Log.i("aaa", "sendFCMMessage response : " + response.body());
+
+                        SendFcmResponse sendFcmResponse = response.body();
+                        if (sendFcmResponse != null && sendFcmResponse.getMessage_id() > 0) {
+                            ToastUtils.showShort("send success message_id : " + sendFcmResponse.getMessage_id());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<SendFcmResponse> call, Throwable t) {
+
+                    }
+                });
+
+
+    };
 
 //    public void sentNotification() {
 //
@@ -394,144 +422,40 @@ public class SendStickerActivity extends AppCompatActivity{
 
     public void sendNotification() {
 
-            Data data = new Data(curUser, selectedUser, selectedImgId);
-            NotificationSender sender = new NotificationSender(data, selectedUser);
-            Toast.makeText(getApplicationContext(),"Notification 1",Toast.LENGTH_SHORT).show();
-            try {
-                myAPIservice.sendNotifcation(sender).enqueue(new Callback<MyResponse>() {
-                    @Override
-                    public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
-                        Log.i("send", response.message());
-                        if (response.isSuccessful()) {
-                            Log.i("send_tag", response.toString());
-                            Toast.makeText(getApplicationContext(),"Notification 2",Toast.LENGTH_SHORT).show();
+        Data data = new Data(curUser, selectedUser, selectedImgId);
+        NotificationSender sender = new NotificationSender(data, selectedUser);
+        Toast.makeText(getApplicationContext(),"Notification 1",Toast.LENGTH_SHORT).show();
+        try {
+            myAPIservice.sendNotifcation(sender).enqueue(new Callback<MyResponse>() {
+                @Override
+                public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
+                    Log.i("send", response.message());
+                    if (response.isSuccessful()) {
+                        Log.i("send_tag", response.toString());
+                        Toast.makeText(getApplicationContext(),"Notification 2",Toast.LENGTH_SHORT).show();
 //                        if (response.body().success != 1) {
 //                            Toast.makeText(getApplicationContext(), "Failed ", Toast.LENGTH_LONG);
 //                        }
 //                        Toast.makeText(getApplicationContext(),"Notification 3",Toast.LENGTH_SHORT).show();
-                        } else {
-                            Log.e("send_tag_err", response.errorBody().toString());
-                        }
+                    } else {
+                        Log.e("send_tag_err", response.errorBody().toString());
                     }
+                }
 
-                    @Override
-                    public void onFailure(Call<MyResponse> call, Throwable t) {
-                        Log.e("Error", t.getMessage());
-                    }
-                });
-            } catch (Exception e) {
-                Log.e("send", e.getMessage());
-            }
+                @Override
+                public void onFailure(Call<MyResponse> call, Throwable t) {
+                    Log.e("Error", t.getMessage());
+                }
+            });
+        } catch (Exception e) {
+            Log.e("send", e.getMessage());
+        }
 
 
 
         Toast.makeText(getApplicationContext(),"Notification 4",Toast.LENGTH_SHORT).show();
 
     }
-
-    private void doUpdate() {
-        if (selectedUser != null) {
-            Toast.makeText(getApplicationContext(),"receiver " + selectedUser +" exist",Toast.LENGTH_SHORT).show();
-        }
-        mUser.addListenerForSingleValueEvent(new ValueEventListener() {
-
-            @RequiresApi(api = Build.VERSION_CODES.O)
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Boolean validSend = false;
-
-                for (DataSnapshot postSnapshot: snapshot.getChildren()) {
-                    User user = postSnapshot.getValue(User.class);
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-                    String curTime = LocalDate.now().format(formatter);
-                    //String curTime = "20211108";
-
-                    if(user.getUserName().equals(selectedUser) && selectedImgId != null) {
-                        //user.getReceivedSticker().add(new Sticker(selectedImgId, curUser, curTime));
-                        ////////////
-
-                        ArrayList<Sticker> tmp = user.getReceivedSticker();
-                        tmp.add(new Sticker(selectedImgId, curUser, curTime));
-                        user.setReceivedSticker(tmp);
-                        DatabaseReference ref = postSnapshot.getRef().child("receivedSticker");
-                        //DatabaseReference ref = postSnapshot.getRef().child(receiverName).child("receivedSticker");
-                        ref.setValue(tmp);
-
-
-//                                sendNotification(curUser, selectedUser, selectedImgId);
-                        Toast.makeText(getApplicationContext(),"Notification sent",Toast.LENGTH_SHORT).show();
-
-//                                mDatabase.child("users").child(receiverName).setValue(user);
-                        Toast.makeText(getApplicationContext(),"sticker sent",Toast.LENGTH_SHORT).show();
-                        RemoteMessage remoteMessage = new RemoteMessage.Builder(selectedUser)
-                                .setMessageId(Integer.toString(selectedImgId))
-                                .addData(curUser, curTime)
-                                .build();
-
-                        validSend = true;
-                    }
-                }
-                if (validSend) {
-                    for (DataSnapshot postSnapshot: snapshot.getChildren()) {
-                        User user = postSnapshot.getValue(User.class);
-                        if(user.getUserName().equals(curUser)){
-                            DatabaseReference ref2 = postSnapshot.getRef().child("numberOfSend");
-                            ref2.setValue(user.getNumberOfSend()+1);
-                            Toast.makeText(getApplicationContext(),"you have sent " + user.getNumberOfSend()+1 +" stickers",Toast.LENGTH_SHORT).show();
-
-                        }
-
-                    }
-
-                }
-//                        Log.i("user_receive_update", users.get);
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.d("Debug", "onCancelled: ");
-            }
-        });
-    }
-
-
-    private void doSendNotification() {
-        SendFcmBean sendFcmBean = new SendFcmBean();
-        sendFcmBean.setTo("/topics/TopicName");
-        NotificationBean notificationBean = new NotificationBean();
-        notificationBean.setTitle("Hi i am title");
-        notificationBean.setTitle("Hi i am body");
-        sendFcmBean.setNotification(notificationBean);
-
-        FcmBeanData fcmBeanData = new FcmBeanData();
-        String titleCur = "Hi "+ selectedUser;
-        fcmBeanData.setTitle(titleCur);
-        String messageCur = "You've received a sticker from " + curUser;
-        fcmBeanData.setBody(messageCur);
-        fcmBeanData.setSendName(curUser);
-        fcmBeanData.setReceiveName(selectedUser);
-        fcmBeanData.setBigImage(selectedImgId);
-        sendFcmBean.setData(fcmBeanData);
-
-        ApiEndpointClient.getEndpointV2().sendFCMMessage(sendFcmBean)
-                .enqueue(new Callback<SendFcmResponse>() {
-                    @Override
-                    public void onResponse(Call<SendFcmResponse> call, Response<SendFcmResponse> response) {
-                        Log.i("aaa", "sendFCMMessage response : " + response.body());
-
-                        SendFcmResponse sendFcmResponse = response.body();
-                        if (sendFcmResponse != null && sendFcmResponse.getMessage_id() > 0) {
-                            ToastUtils.showShort("send success message_id : " + sendFcmResponse.getMessage_id());
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<SendFcmResponse> call, Throwable t) {
-
-                    }
-                });
-
-
-    };
 
 
 
