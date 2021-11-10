@@ -106,16 +106,6 @@ public class SendStickerActivity extends AppCompatActivity{
 
 
         receiver = findViewById(R.id.sentToUser);
-//
-//        sendBtn = findViewById(R.id.sendButton);
-//        FirebaseInstanceIdInternal.NewTokenListener
-//        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(){ result ->
-//            if(result != null){
-//                fbToken = result
-//                // DO your thing with your firebase token
-//            }
-//        }
-//        FirebaseMessaging.getInstance().subscribeToTopic(topic);
 
         // 3 sticker to choose
         selectedImgTextView = findViewById(R.id.selectImgText);

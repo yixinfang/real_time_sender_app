@@ -38,10 +38,8 @@ public class HistoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_history);
         init(savedInstanceState);
-       // v = findViewById(R.id.HistoryView);
         userName = (String) getIntent().getSerializableExtra("userName");
-        //getUserHistory();
-        //v.setText(userName);
+
        getUserHistory();
     }
 
@@ -154,7 +152,7 @@ public class HistoryActivity extends AppCompatActivity {
             // put image information id into instance
 //            outState.putString(KEY_OF_INSTANCE + i + "0", resList.get(i).getUrl());
             // put itemName information into instance
-            outState.putString(KEY_OF_INSTANCE + i + "0", valueOf(resList.get(i).getStickerId()));
+            outState.putInt(KEY_OF_INSTANCE + i + "0", resList.get(i).getStickerId());
             outState.putString(KEY_OF_INSTANCE + i + "1", resList.get(i).getSender());
             outState.putString(KEY_OF_INSTANCE + i + "2", resList.get(i).getSendTime());
         }
