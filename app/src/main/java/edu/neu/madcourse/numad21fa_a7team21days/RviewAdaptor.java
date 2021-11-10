@@ -37,10 +37,12 @@ public class RviewAdaptor extends RecyclerView.Adapter<RviewHolder> {
     @Override
     public void onBindViewHolder(RviewHolder holder, int position) {
         Sticker currentItem = stickerList.get(position);
+        String id = String.valueOf(currentItem.getStickerId());
 
-        holder.stickerID.setText(currentItem.getStickerId());
+        //holder.stickerID.setText(id);
         holder.sender.setText(currentItem.getSender());
         holder.receiveTime.setText(currentItem.getSendTime());
+        holder.stickerID.setImageResource(currentItem.getStickerId());
         holder.itemView.setBackgroundColor(Color.parseColor(mColors[position % 4]));
 
     }

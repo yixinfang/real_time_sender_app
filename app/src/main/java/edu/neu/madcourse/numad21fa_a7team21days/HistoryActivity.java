@@ -28,6 +28,7 @@ public class HistoryActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager rLayoutManger;
     private RviewAdaptor rviewAdaptor;
     private ArrayList<Sticker> resList = new ArrayList<>();
+    private Integer imageRes;
 
     private static final String KEY_OF_INSTANCE = "KEY_OF_INSTANCE";
     private static final String NUMBER_OF_ITEMS = "NUMBER_OF_ITEMS";
@@ -35,28 +36,19 @@ public class HistoryActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_history);
-        //init(savedInstanceState);
-        v = findViewById(R.id.HistoryView);
+        setContentView(R.layout.activity_user_history);
+        init(savedInstanceState);
+       // v = findViewById(R.id.HistoryView);
         userName = (String) getIntent().getSerializableExtra("userName");
-        getUserHistory();
+        //getUserHistory();
         //v.setText(userName);
-       // getUserHistory();
+       getUserHistory();
     }
 
     private void init(Bundle savedInstanceState) {
         initialItemData(savedInstanceState);
         createRecyclerView();
     }
-//    private void setRes(int i, String title) {
-//        runOnUiThread(new Runnable() {
-//            @Override
-//            public void run() {
-//                resList.add(i, new Sticker(title));
-//                rviewAdaptor.notifyItemInserted(i);
-//            }
-//        });
-//    }
 
     private void initialItemData(Bundle savedInstanceState) {
 
@@ -105,14 +97,23 @@ public class HistoryActivity extends AppCompatActivity {
                 for (DataSnapshot postSnapshot: snapshot.getChildren()) {
                     User user = postSnapshot.getValue(User.class);
 //                    sb.append(user.getUserName()).append("\n");
+
                     if (user.getUserName().equals(userName)) {
+                        ArrayList<Sticker> tmp = user.getReceivedSticker();
+                        for (int i=0; i <tmp.size();i++) {
+                            Sticker stickerCur = tmp.get(i);
+                            Integer stickerIDCur = stickerCur.getStickerId();
+                            String senderCur = stickerCur.getSender();
+                            String sendTimeCur = stickerCur.getSendTime();
+                            setRes(i,stickerIDCur,senderCur, sendTimeCur);
+                        }
                         sb.append(user.toString());
                         //resList = user.getReceivedSticker();
                     }
                     //sb.append(user.getUserName());
                     Log.i("Get Data", user.getUserName());
                 }
-                v.setText(sb.toString());
+                //v.setText(sb.toString());
                 //v.setText(userName);
             }
 
@@ -123,6 +124,26 @@ public class HistoryActivity extends AppCompatActivity {
         });
         //return sb.toString();
     }
+
+    private void setRes(int i, Integer ID, String sender, String sendTime) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                if (ID == 1){
+                    imageRes = R.drawable.stciker_1;
+                } else if (ID == 2){
+                    imageRes = R.drawable.sticker_2;
+                } else if (ID == 3){
+                    imageRes = R.drawable.sticker_3;
+                }
+
+                resList.add(i, new Sticker(imageRes, sender, sendTime));
+                rviewAdaptor.notifyItemInserted(i);
+            }
+        });
+    }
+
 
     // Handling Orientation Changes on Android
     @Override
