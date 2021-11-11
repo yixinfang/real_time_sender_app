@@ -45,7 +45,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 // start login
                 startLogin(userGivenName);
-                Toast.makeText(getApplicationContext(),"start.login",Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(),"start.login",Toast.LENGTH_SHORT).show();
 
                 // Go to send sticker activity
                 startSendSticker(view, userGivenName);

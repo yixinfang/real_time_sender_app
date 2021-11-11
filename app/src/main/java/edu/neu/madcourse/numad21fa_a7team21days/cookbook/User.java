@@ -17,10 +17,12 @@ public class User {
         this.receivedSticker = new ArrayList<Sticker>();
 
         // testing for later usage
-        Date date = Calendar.getInstance().getTime();
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
-        String strDate = dateFormat.format(date);
-        this.receivedSticker.add(new Sticker(1,userName,strDate));
+//        Date date = Calendar.getInstance().getTime();
+//        DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+//        String strDate = dateFormat.format(date);
+//        this.receivedSticker.add(new Sticker(1,userName,strDate));
+        this.receivedSticker.add(new Sticker(1,"empty","empty"));
+
     }
 
     public User(){ }

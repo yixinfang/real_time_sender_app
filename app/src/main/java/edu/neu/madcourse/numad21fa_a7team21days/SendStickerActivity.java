@@ -271,7 +271,9 @@ public class SendStickerActivity extends AppCompatActivity{
                         if(user.getUserName().equals(curUser)){
                             DatabaseReference ref2 = postSnapshot.getRef().child("numberOfSend");
                             ref2.setValue(user.getNumberOfSend()+1);
-                            //Toast.makeText(getApplicationContext(),"you have sent " + user.getNumberOfSend()+1 +" stickers",Toast.LENGTH_SHORT).show();
+                            // revised by haowen
+                            Integer pastSend = (user.getNumberOfSend() + 1);
+                            Toast.makeText(getApplicationContext(),"you have sent " + pastSend +" stickers",Toast.LENGTH_SHORT).show();
 
                         }
 
